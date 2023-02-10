@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  database:
+    image: postgres:11-alpine
+    restart: always
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: 'habit-hop'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
