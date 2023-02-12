@@ -3,7 +3,7 @@ import * as Koa from 'koa';
 import * as Router from 'koa-router';
 import { Repository } from 'typeorm';
 import AppDataSource from '../db';
-import userEntity from '../user/entity';
+import User from '../user/entity';
 import { sign } from '../jwt'
 
 interface AuthenticatePayload {
@@ -15,7 +15,7 @@ const routerOpts: Router.IRouterOptions = {
   prefix: '/logins',
 };
 const router: Router = new Router(routerOpts);
-const userRepo:Repository<userEntity> = AppDataSource.getRepository(userEntity);
+const userRepo:Repository<User> = AppDataSource.getRepository(User);
 
 router.post('/', async (ctx:Koa.Context) => {
   const { email, password } = <AuthenticatePayload>ctx.request.body;
@@ -33,6 +33,9 @@ router.post('/', async (ctx:Koa.Context) => {
    if (!await user.checkPassword(password)) {
     ctx.throw('Incorrect password or email', HttpStatus.StatusCodes.BAD_REQUEST)
   } 
+  
+  //update last login timestamp
+  userRepo.save(user);
 
   const jwt = sign({ id: user.id })
  

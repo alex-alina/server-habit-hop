@@ -4,7 +4,7 @@ import * as Router from 'koa-router';
 import { Repository } from 'typeorm';
 import AppDataSource from '../db';
 import userEntity from '../user/entity';
-import goalEntity, { Priority } from './entity';
+import Goal, { Priority } from './entity';
 import { userAuth } from "../middleware/authChecker";
 
 interface GoalRequest {
@@ -20,7 +20,7 @@ const routerOpts: Router.IRouterOptions = {
 
 const router: Router = new Router(routerOpts);
 
-const goalRepo:Repository<goalEntity> = AppDataSource.getRepository(goalEntity);
+const goalRepo:Repository<Goal> = AppDataSource.getRepository(Goal);
 
 router.get('/', userAuth, async (ctx:Koa.Context) => {
   const goals = await goalRepo.find();
@@ -79,7 +79,7 @@ router.delete('/:goalId', userAuth, async (ctx:Koa.Context) => {
 });
 
 router.patch('/:goalId', userAuth, async (ctx:Koa.Context) => {
-  const goal:goalEntity | null = await goalRepo.findOne(
+  const goal:Goal | null = await goalRepo.findOne(
     {
     where: {
       id: ctx.params.goalId,

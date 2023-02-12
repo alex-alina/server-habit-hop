@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import AppDataSource from '../db';
 import goalController from '../goal/controller';
 import { userAuth } from "../middleware/authChecker";
-import userEntity from './entity';
+import User from './entity';
 
 interface UserRequest {
   firstName: string;
@@ -22,7 +22,7 @@ const routerOpts: Router.IRouterOptions = {
 
 const router: Router = new Router(routerOpts);
 
-const userRepo:Repository<userEntity> = AppDataSource.getRepository(userEntity);
+const userRepo:Repository<User> = AppDataSource.getRepository(User);
 
 // router.get('/', async (ctx:Koa.Context) => {
 //   const users = await userRepo.find();
@@ -57,7 +57,7 @@ router.post('/', async (ctx:Koa.Context) => {
     ctx.throw("Passwords do not match", HttpStatus.StatusCodes.BAD_REQUEST)
   }
  
-  const user: userEntity = userRepo.create(data);
+  const user: User = userRepo.create(data);
 
   const errors = await validate(user, { validationError: { target: false } })
   if(errors.length > 0) {
@@ -93,7 +93,7 @@ router.delete('/:userId', userAuth, async (ctx:Koa.Context) => {
 });
 
 router.patch('/:userId', userAuth, async (ctx:Koa.Context) => {
-  const user:userEntity | null = await userRepo.findOne(
+  const user:User | null = await userRepo.findOne(
     {
     where: {
       id: ctx.params.userId,
