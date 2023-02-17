@@ -1,7 +1,26 @@
 version: "3"
 
 services:
-  database:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - .:/usr/src/app
+    # env_file: .env
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      NODE_ENV: development
+      PORT: 3002
+    ports:
+      - "3002:3002"
+    command: "npm start"
+
+  postgres:
+    container_name: server-habit-hop-postgres-1
     image: postgres:11-alpine
     restart: always
     expose:
