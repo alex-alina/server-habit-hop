@@ -7,6 +7,7 @@ import AppDataSource from '../db';
 import goalController from '../goal/controller';
 import { userAuth } from "../middleware/authChecker";
 import User from './entity';
+import { sign } from '../jwt'
 
 interface UserRequest {
   firstName: string;
@@ -41,7 +42,9 @@ router.get('/:userId', userAuth, async (ctx:Koa.Context) => {
   });
 
   if (!user) {
-    ctx.throw("User not found", HttpStatus.StatusCodes.NOT_FOUND);
+    ctx.status= HttpStatus.StatusCodes.NOT_FOUND;
+    ctx.body= {error: { message: 'User not found'}}
+    ctx.throw(HttpStatus.StatusCodes.NOT_FOUND, "User not found");
   }
 
   ctx.body = {
@@ -52,26 +55,37 @@ router.get('/:userId', userAuth, async (ctx:Koa.Context) => {
 router.post('/', async (ctx:Koa.Context) => {
   const data = <UserRequest>ctx.request.body;
   const { confirmPassword } = data;
-  
   if(data.password !== confirmPassword) {
-    ctx.throw("Passwords do not match", HttpStatus.StatusCodes.BAD_REQUEST)
+    ctx.throw( HttpStatus.StatusCodes.BAD_REQUEST, "Passwords do not match")
   }
- 
+
+   const existingUser = await userRepo.findOne(
+    {
+    where: {
+      email: data.email,
+    }
+  });
+  if(existingUser?.email ) {
+    ctx.throw( HttpStatus.StatusCodes.CONFLICT, "A user with this email already exists");
+  }
+
   const user: User = userRepo.create(data);
 
   const errors = await validate(user, { validationError: { target: false } })
   if(errors.length > 0) {
     const invalidConstraints = errors.map(error => error.constraints);
     const errorMessages = invalidConstraints.map(constraint => constraint ? Object.values(constraint) : '')
-    ctx.throw(`${errorMessages}`, HttpStatus.StatusCodes.BAD_REQUEST)
+    ctx.throw( HttpStatus.StatusCodes.BAD_REQUEST, errorMessages)
+  
   }
 
   await userRepo.save(user);
+  const jwt = sign({ id: user.id })
+  const {password, ...userData} = user;
 
   ctx.status = HttpStatus.StatusCodes.CREATED;
-  const {password, ...rest} = user;
   ctx.body = {
-    data: { rest },
+    data: { userData, jwt },
   };
 });
 
@@ -84,7 +98,7 @@ router.delete('/:userId', userAuth, async (ctx:Koa.Context) => {
   });
 
   if (!user) {
-    ctx.throw("User not found", HttpStatus.StatusCodes.NOT_FOUND);
+    ctx.throw(HttpStatus.StatusCodes.NOT_FOUND, "User not found");
   }
 
   await userRepo.delete(user.id);
@@ -101,7 +115,7 @@ router.patch('/:userId', userAuth, async (ctx:Koa.Context) => {
   });
 
   if (!user) {
-    ctx.throw("User not found", HttpStatus.StatusCodes.NOT_FOUND);
+    ctx.throw(HttpStatus.StatusCodes.NOT_FOUND, "User not found");
   }
 
   const updatedUser = await userRepo.merge(user, <UserRequest>ctx.request.body);

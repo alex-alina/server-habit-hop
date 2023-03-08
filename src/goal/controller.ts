@@ -23,7 +23,14 @@ const router: Router = new Router(routerOpts);
 const goalRepo:Repository<Goal> = AppDataSource.getRepository(Goal);
 
 router.get('/', userAuth, async (ctx:Koa.Context) => {
-  const goals = await goalRepo.find();
+  const goals = await goalRepo.find({
+    relations: {
+      user: true,
+    },
+    where: {
+      user: {id: ctx.params.userId,}
+    }
+  });
 
   ctx.body = {
     data: { goals },
@@ -32,8 +39,12 @@ router.get('/', userAuth, async (ctx:Koa.Context) => {
 
 router.get('/:goalId', userAuth, async (ctx:Koa.Context) => {
   const goal = await goalRepo.findOne({
+    relations: {
+      user: true,
+    },
     where: {
       id: ctx.params.goalId,
+      user: {id: ctx.params.userId,}
     }
   });
 
@@ -62,10 +73,13 @@ router.post('/', userAuth, async (ctx:Koa.Context) => {
 });
 
 router.delete('/:goalId', userAuth, async (ctx:Koa.Context) => {
-  const goal = await goalRepo.findOne(
-    {
+  const goal = await goalRepo.findOne({
+    relations: {
+      user: true,
+    },
     where: {
       id: ctx.params.goalId,
+      user: {id: ctx.params.userId,}
     }
   });
 
@@ -79,10 +93,13 @@ router.delete('/:goalId', userAuth, async (ctx:Koa.Context) => {
 });
 
 router.patch('/:goalId', userAuth, async (ctx:Koa.Context) => {
-  const goal:Goal | null = await goalRepo.findOne(
-    {
+  const goal:Goal | null = await goalRepo.findOne({
+    relations: {
+      user: true,
+    },
     where: {
       id: ctx.params.goalId,
+      user: {id: ctx.params.userId,}
     }
   });
 
