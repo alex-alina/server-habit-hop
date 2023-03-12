@@ -19,10 +19,10 @@ export default class Goal {
   })
   priority: Priority;
 
-  @Column({type: 'timestamptz', nullable: true})
+  @Column({type: 'date', nullable: true})
   startDate: Date;
 
-  @Column({type: 'timestamptz', nullable: true})
+  @Column({type: 'date', nullable: true})
   endDate: Date;
 
   @ManyToOne(() => User, user => user.goals)
