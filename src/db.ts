@@ -28,6 +28,7 @@ const parentDir = join(__dirname, '..');
 
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
+  url: process.env.DATABASE_URL,
   host: process.env.DB_HOST || '0.0.0.0',
   port: Number(process.env.DB_PORT) || 5432,
   username: process.env.DB_USERNAME || 'postgres',
