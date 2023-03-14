@@ -2,8 +2,9 @@ import app from './app/app'
 import AppDataSource from './db';
 
 const PORT:number = Number(process.env.PORT) || 3002;
+const HOST: string = process.env.HOST || "127.0.0.1";
 
-app.listen(PORT);
+app.listen(PORT, HOST);
 
  AppDataSource.initialize()
     .then(() => {

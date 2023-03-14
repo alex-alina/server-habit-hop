@@ -78,5 +78,8 @@
   },
   "overrides": {
     "@types/koa": "$@types/koa"
+  },
+  "engines": {
+  "node": "18.14.0"
   }
 }
