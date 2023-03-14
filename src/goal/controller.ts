@@ -61,6 +61,18 @@ router.post('/', userAuth, async (ctx:Koa.Context) => {
   const user = await AppDataSource.manager.findOneBy(userEntity, {
     id: ctx.params.userId,
   })
+  const goals = await goalRepo.find({
+    relations: {
+      user: true,
+    },
+    where: {
+      user: {id: ctx.params.userId,}
+    }
+  });
+
+  if(goals.length >= 3) {
+     ctx.throw( HttpStatus.StatusCodes.BAD_REQUEST, "You can add a maximum of three goals");
+  }
 
   const goal = goalRepo.create(<GoalRequest>ctx.request.body);
   goal.user = <userEntity>user;
