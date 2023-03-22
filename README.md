@@ -9,7 +9,7 @@ Users can add, edit and delete goals and habits. For each habit they will choose
 Users will be able to edit their user data and change a forgotten password. They will also be able toUsers will also see the time lapsed from the start of the goal until the chosen deadline.
  delete their account and all their information if they want. 
 
-[The app's client side and demos can be checked here](https://github.com/alex-alina/habit-hop-client)
+The app's client side and demos can be checked [here](https://github.com/alex-alina/habit-hop-client)
 
 **Status: WIP**
 
