@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity,OneToMany,  ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import User from '../user/entity';
+import Habit from '../habit/entity';
 
 export type Priority = "main" | "secondary" | "tertiary";
 
@@ -27,4 +28,7 @@ export default class Goal {
 
   @ManyToOne(() => User, user => user.goals)
   user: User
+
+  @OneToMany(() => Habit, habit => habit.goal) 
+  habits: Habit[]
 }

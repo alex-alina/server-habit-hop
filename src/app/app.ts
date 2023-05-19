@@ -5,6 +5,8 @@ import * as bodyParser from 'koa-bodyparser';
 import goalController from '../goal/controller';
 import loginController from '../login/controller';
 import userController from '../user/controller';
+import habitController from '../habit/controller';
+
 import logger = require('koa-logger');
 
 const app: Koa =  new Koa();
@@ -31,6 +33,8 @@ app.use(userController.routes())
   .use(goalController.allowedMethods())
   .use(loginController.routes())
   .use(loginController.allowedMethods())
+  .use(habitController.routes())
+  .use(habitController.allowedMethods())
 
 
 app.on('error', console.error);
