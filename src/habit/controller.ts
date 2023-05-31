@@ -70,7 +70,7 @@ router.post('/', userAuth, async (ctx:Koa.Context) => {
   });
 
   if(habits.length >= 4) {
-     ctx.throw( HttpStatus.StatusCodes.BAD_REQUEST, "You can add a maximum of four habits");
+     ctx.throw( HttpStatus.StatusCodes.BAD_REQUEST, "You can add a maximum of four habits per goal");
   }
 
   const habit = habitRepo.create(<HabitRequest>ctx.request.body);
@@ -83,48 +83,51 @@ router.post('/', userAuth, async (ctx:Koa.Context) => {
   };
 });
 
-// router.delete('/:goalId', userAuth, async (ctx:Koa.Context) => {
-//   const goal = await goalRepo.findOne({
-//     relations: {
-//       user: true,
-//     },
-//     where: {
-//       id: ctx.params.goalId,
-//       user: {id: ctx.params.userId,}
-//     }
-//   });
+router.delete('/:habitId', userAuth, async (ctx:Koa.Context) => {
+    const habit = await habitRepo.findOne({
+    relations: {
+      goal: true,
+    },
+    where: {
+      id:ctx.params.habitId,
+      goal: {id: ctx.params.goalId,}
+    }
+  });
 
-//   if (!goal) {
-//     ctx.throw("Goal not found", HttpStatus.StatusCodes.NOT_FOUND);
-//   }
 
-//   await goalRepo.delete(goal.id);
+  if (!habit) {
+    ctx.throw("Habit not found", HttpStatus.StatusCodes.NOT_FOUND);
+  }
 
-//   ctx.status = HttpStatus.StatusCodes.NO_CONTENT;
-// });
+  await habitRepo.delete(habit.id);
 
-// router.patch('/:goalId', userAuth, async (ctx:Koa.Context) => {
-//   const goal:Goal | null = await goalRepo.findOne({
-//     relations: {
-//       user: true,
-//     },
-//     where: {
-//       id: ctx.params.goalId,
-//       user: {id: ctx.params.userId,}
-//     }
-//   });
+  ctx.status = HttpStatus.StatusCodes.NO_CONTENT;
+});
 
-//   if (!goal) {
-//     ctx.throw("Goal not found", HttpStatus.StatusCodes.NOT_FOUND);
-//   }
+router.patch('/:habitId', userAuth, async (ctx:Koa.Context) => {
+   const habit: Habit | null = await habitRepo.findOne({
+    relations: {
+      goal: true,
+    },
+    where: {
+      id:ctx.params.habitId,
+      goal: {id: ctx.params.goalId,}
+    }
+  });
 
-//   const updatedGoal = await goalRepo.merge(goal, <GoalRequest>ctx.request.body);
+  if (!habit) {
+    ctx.throw("Goal not found", HttpStatus.StatusCodes.NOT_FOUND);
+  }
 
-//   goalRepo.save(updatedGoal);
+  const reqHabit = <HabitRequest>ctx.request.body;
+  const editedHabit = {habitDescription: reqHabit.habitDescription}
+  const updatedHabit = await habitRepo.merge(habit, editedHabit);
 
-//   ctx.body = {
-//     data: { goal: updatedGoal },
-//   };
-// });
+  habitRepo.save(updatedHabit);
+
+  ctx.body = {
+    data: { habit: updatedHabit },
+  };
+});
 
 export default router;

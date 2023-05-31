@@ -22,6 +22,8 @@ export default class Habit {
   @Column({type: 'text'})
   progressMetric: string;
 
-  @ManyToOne(() => Goal, goal => goal.habits)
+  @ManyToOne(() => Goal, goal => goal.habits, { 
+    onDelete: 'CASCADE' 
+  })
   goal: Goal
 }
